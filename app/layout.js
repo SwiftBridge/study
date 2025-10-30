@@ -1,4 +1,5 @@
 import './globals.css'
+import { Web3ModalProvider } from './context/Web3Modal'
 
 export const metadata = {
   title: 'Study DApp - On-Chain Learning Tracker',
@@ -9,7 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-background antialiased">
-        {children}
+        <Web3ModalProvider>
+          {children}
+        </Web3ModalProvider>
       </body>
     </html>
   )
