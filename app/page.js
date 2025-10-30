@@ -1,13 +1,60 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useReadContract } from 'wagmi'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { CONTRACT_ADDRESS, STUDY_ABI } from './contracts/Study'
+import CoursesSection from './components/CoursesSection'
+import NotesSection from './components/NotesSection'
+import AchievementsSection from './components/AchievementsSection'
+import GoalsSection from './components/GoalsSection'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const { address, isConnected } = useAccount()
   const { open } = useWeb3Modal()
+
+  // Read contract data
+  const { data: courses, refetch: refetchCourses } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: STUDY_ABI,
+    functionName: 'getUserCourses',
+    args: address ? [address] : undefined,
+  })
+
+  const { data: notes, refetch: refetchNotes } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: STUDY_ABI,
+    functionName: 'getUserNotes',
+    args: address ? [address] : undefined,
+  })
+
+  const { data: achievements, refetch: refetchAchievements } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: STUDY_ABI,
+    functionName: 'getUserAchievements',
+    args: address ? [address] : undefined,
+  })
+
+  const { data: goals, refetch: refetchGoals } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: STUDY_ABI,
+    functionName: 'getUserGoals',
+    args: address ? [address] : undefined,
+  })
+
+  const { data: entryFee } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: STUDY_ABI,
+    functionName: 'entryFee',
+  })
+
+  const refetchAll = () => {
+    refetchCourses()
+    refetchNotes()
+    refetchAchievements()
+    refetchGoals()
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -84,9 +131,27 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-24">
-            <div className="text-4xl font-bold text-white mb-4">Welcome!</div>
-            <p className="text-gray-400">Study features will be added in the next commits...</p>
+          <div className="space-y-8">
+            <CoursesSection
+              courses={courses}
+              entryFee={entryFee}
+              refetch={refetchAll}
+            />
+            <NotesSection
+              notes={notes}
+              entryFee={entryFee}
+              refetch={refetchAll}
+            />
+            <AchievementsSection
+              achievements={achievements}
+              entryFee={entryFee}
+              refetch={refetchAll}
+            />
+            <GoalsSection
+              goals={goals}
+              entryFee={entryFee}
+              refetch={refetchAll}
+            />
           </div>
         )}
       </div>
